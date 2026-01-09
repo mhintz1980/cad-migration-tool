@@ -1,8 +1,16 @@
 # Core dependencies
 ezdxf>=1.0.0
 click>=8.0.0
-pyyaml>=6.0
 rich>=13.0.0
+pyyaml>=6.0
+sqlalchemy>=2.0.0
 
-# For SolidWorks PDM integration (optional)
-# comtypes>=1.2.0
+# Windows-only (for SolidWorks PDM)
+# Uncomment on Windows:
+# pywin32>=305
+
+# Development dependencies
+pytest>=7.0.0
+pytest-cov>=4.0.0
+black>=23.0.0
+mypy>=1.0.0

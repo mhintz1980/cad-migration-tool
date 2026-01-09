@@ -1,0 +1,155 @@
+# Example CAD Standards Configuration
+# Copy this file and customize for your organization
+
+name: "modern-standards"
+version: "2.0"
+description: "Modern corporate CAD standards"
+drawing_type: "mechanical"
+
+# Layer Standards
+# Define properties for each standard layer
+layer_standards:
+  GEOMETRY:
+    color: 7  # White (AutoCAD color index)
+    linetype: "Continuous"
+    lineweight: 0.25  # mm
+    description: "Geometric entities (lines, arcs, circles)"
+    
+  DIMENSIONS:
+    color: 1  # Red
+    linetype: "Continuous"
+    lineweight: 0.18
+    description: "Dimension entities"
+    
+  TEXT:
+    color: 3  # Green
+    linetype: "Continuous"
+    lineweight: 0.13
+    description: "Text and annotations"
+    
+  CENTERLINES:
+    color: 5  # Blue
+    linetype: "CENTER"
+    lineweight: 0.13
+    description: "Centerlines and axis"
+    
+  HIDDEN:
+    color: 8  # Dark gray
+    linetype: "HIDDEN"
+    lineweight: 0.18
+    description: "Hidden lines"
+    
+  HATCHING:
+    color: 9  # Light gray
+    linetype: "Continuous"
+    lineweight: 0.13
+    description: "Section hatching"
+
+# Dimension Standards
+# Define dimension style properties
+dimension_standards:
+  default:
+    arrow_size: 0.18  # mm
+    text_height: 0.125  # mm
+    text_offset: 0.09  # mm from dimension line
+    extension_line_offset: 0.0625  # mm from origin
+    precision: 2  # decimal places
+    units: "mm"
+    layer: "DIMENSIONS"
+    arrow_style: "CLOSED"  # CLOSED, OPEN, DOT, etc.
+    text_alignment: "ABOVE"  # ABOVE, CENTER, OUTSIDE
+
+# Text Standards
+# Define text style properties
+text_standards:
+  default:
+    height: 0.125  # mm
+    font: "Arial"
+    layer: "TEXT"
+    alignment: "LEFT"  # LEFT, CENTER, RIGHT
+    
+  title:
+    height: 0.25
+    font: "Arial"
+    layer: "TEXT"
+    alignment: "CENTER"
+    
+  notes:
+    height: 0.1
+    font: "Arial"
+    layer: "TEXT"
+    alignment: "LEFT"
+
+# Layer Mappings
+# Map old layer names to new standard names
+layer_mappings:
+  "0": "GEOMETRY"
+  "DEFPOINTS": "GEOMETRY"
+  "DIMS": "DIMENSIONS"
+  "DIM": "DIMENSIONS"
+  "NOTES": "TEXT"
+  "TEXT": "TEXT"
+  "CENTER": "CENTERLINES"
+  "CENTERLINE": "CENTERLINES"
+  "HIDDEN": "HIDDEN"
+  "HATCH": "HATCHING"
+
+# Title Block Field Mappings
+# Map old title block fields to new fields
+title_block_mappings:
+  "DWG_NO": "number"
+  "DRAWING_NO": "number"
+  "PART_NO": "number"
+  "TITLE": "title"
+  "DWG_TITLE": "title"
+  "DRAWN_BY": "author"
+  "DESIGNER": "author"
+  "CHECKED_BY": "checker"
+  "DATE": "date"
+  "DWG_DATE": "date"
+  "REV": "revision"
+  "REVISION": "revision"
+  "SCALE": "scale"
+
+# Property Mappings for PDM Integration
+# Map CAD properties to PDM custom properties
+property_mappings:
+  "Part Number":
+    source: "title_block"
+    source_key: "number"
+    required: true
+    
+  "Title":
+    source: "title_block"
+    source_key: "title"
+    required: true
+    
+  "Author":
+    source: "title_block"
+    source_key: "author"
+    required: false
+    
+  "Revision":
+    source: "title_block"
+    source_key: "revision"
+    required: false
+    
+  "Date":
+    source: "title_block"
+    source_key: "date"
+    required: false
+
+# Validation Rules
+validation:
+  # Required layers that must exist
+  required_layers:
+    - "GEOMETRY"
+    - "DIMENSIONS"
+    
+  # Minimum entity counts
+  min_entities: 1
+  
+  # Title block required fields
+  required_title_block_fields:
+    - "number"
+    - "title"
