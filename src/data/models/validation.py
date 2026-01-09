@@ -5,7 +5,7 @@ Define data structures for validation results and issues.
 """
 
 from dataclasses import dataclass, field
-from typing import List, Any
+from typing import List, Any, Optional
 
 
 @dataclass
