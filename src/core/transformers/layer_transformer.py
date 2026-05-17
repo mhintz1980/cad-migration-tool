@@ -119,20 +119,68 @@ class LayerTransformer(BaseTransformer):
         """
         renamed_count = 0
 
-        # Build reverse mapping for entities (old_layer -> new_layer)
+        # Build mapping of all layer renames to apply to entities
+        layer_renames: Dict[str, str] = {}
+
+        # Collect all target layers that need to be created
+        target_layers = set()
+
+        # First pass: identify all renames needed
         for old_name, new_name in self.standards.layer_mapping.items():
             if old_name not in drawing.layers:
                 continue
-
             if old_name == new_name:
-                continue  # No change needed
+                continue
+            layer_renames[old_name] = new_name
+            target_layers.add(new_name)
 
-            # Rename layer in layers dict
+        # Create target layers in raw ezdxf document
+        if drawing.raw_data and hasattr(drawing.raw_data, "layers"):
+            for new_layer in target_layers:
+                if new_layer not in drawing.raw_data.layers:
+                    # Get layer standard if available
+                    if new_layer in self.standards.layer_standards:
+                        std = self.standards.layer_standards[new_layer]
+                        drawing.raw_data.layers.new(
+                            new_layer,
+                            dxfattribs={
+                                "color": std.color,
+                                "linetype": std.line_type,
+                                "lineweight": std.line_weight,
+                                "plot": std.plot
+                            }
+                        )
+                    else:
+                        # Create with default properties
+                        drawing.raw_data.layers.new(
+                            new_layer,
+                            dxfattribs={
+                                "color": 7,
+                                "linetype": "CONTINUOUS"
+                            }
+                        )
+                    logger.info(f"Created new layer '{new_layer}' in raw document")
+
+        # Second pass: update entity layer references
+        for entity in drawing.entities:
+            current_layer = entity.get("layer")
+            if current_layer in layer_renames:
+                new_layer = layer_renames[current_layer]
+                # Update entity dict
+                entity["layer"] = new_layer
+                # Update raw ezdxf entity if available
+                raw_entity = entity.get("data")
+                if raw_entity and hasattr(raw_entity, "dxf"):
+                    raw_entity.dxf.layer = new_layer
+                renamed_count += 1
+
+        # Third pass: rename layers in layers dict
+        for old_name, new_name in layer_renames.items():
             if new_name in drawing.layers:
                 # Merge into existing layer
-                drawing.layers[new_name]["entities"].extend(
-                    drawing.layers[old_name]["entities"]
-                )
+                old_entities = drawing.layers[old_name].get("entities", [])
+                new_entities = drawing.layers[new_name].get("entities", [])
+                drawing.layers[new_name]["entities"] = new_entities + old_entities
                 result.add_warning(
                     f"Merged layer '{old_name}' into existing '{new_name}'"
                 )
@@ -142,11 +190,8 @@ class LayerTransformer(BaseTransformer):
 
             # Remove old layer
             del drawing.layers[old_name]
-            renamed_count += 1
 
-            # Update entity references (this depends on ezdxf specifics)
-            # For now, we log it
-            logger.debug(f"Renamed layer '{old_name}' -> '{new_name}'")
+            logger.info(f"Renamed layer '{old_name}' -> '{new_name}'")
 
         return renamed_count
 

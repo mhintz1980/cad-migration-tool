@@ -350,12 +350,21 @@ class BatchProcessor:
         stats = self.state_manager.get_stats()
         migration = self.state_manager.migration
 
+        # Handle datetime fields (may be datetime or string)
+        started_at = migration.started_at
+        if started_at and not isinstance(started_at, str):
+            started_at = started_at.isoformat()
+
+        completed_at = migration.completed_at
+        if completed_at and not isinstance(completed_at, str):
+            completed_at = completed_at.isoformat()
+
         return {
             "status": migration.status.value,
             "migration_id": migration.migration_id,
             "profile": migration.profile,
-            "started_at": migration.started_at.isoformat() if migration.started_at else None,
-            "completed_at": migration.completed_at.isoformat() if migration.completed_at else None,
+            "started_at": started_at,
+            "completed_at": completed_at,
             "stats": stats,
         }
 

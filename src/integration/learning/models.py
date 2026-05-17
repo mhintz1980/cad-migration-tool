@@ -53,14 +53,32 @@ class LearningResult:
     metadata: Dict[str, Any] = field(default_factory=dict)
 
     @property
-    def high_confidence_rules(self, threshold: float = 0.8) -> List[LearnedRule]:
-        """Get rules with confidence >= threshold."""
-        return [rule for rule in self.rules if rule.confidence >= threshold]
+    def total_rules(self) -> int:
+        """Total number of learned rules."""
+        return len(self.rules)
+
+    def get_high_confidence_count(self, threshold: float = 0.8) -> int:
+        """Count of rules with confidence >= threshold."""
+        return len([r for r in self.rules if r.confidence >= threshold])
+
+    def get_low_confidence_count(self, threshold: float = 0.8) -> int:
+        """Count of rules with confidence < threshold."""
+        return len([r for r in self.rules if r.confidence < threshold])
 
     @property
-    def low_confidence_rules(self, threshold: float = 0.8) -> List[LearnedRule]:
-        """Get rules with confidence < threshold."""
-        return [rule for rule in self.rules if rule.confidence < threshold]
+    def layer_rules(self) -> List[LearnedRule]:
+        """Filter rules by layer_mapping type."""
+        return [rule for rule in self.rules if rule.rule_type == "layer_mapping"]
+
+    @property
+    def dimension_rules(self) -> List[LearnedRule]:
+        """Filter rules by dimension_property type."""
+        return [rule for rule in self.rules if rule.rule_type == "dimension_property"]
+
+    @property
+    def title_block_rules(self) -> List[LearnedRule]:
+        """Filter rules by title_block_mapping type."""
+        return [rule for rule in self.rules if rule.rule_type == "title_block_mapping"]
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary for serialization."""

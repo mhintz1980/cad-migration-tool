@@ -130,6 +130,8 @@ def run_migration(
             migration_id=migration_id,
             parallel_workers=workers,
             enable_validation=not no_validation,
+            enable_pre_validation=not no_validation,
+            enable_post_validation=not no_validation,
             enable_rollback=not no_rollback,
             max_failures=max_failures,
             checkpoint_interval=checkpoint_interval,
@@ -195,7 +197,7 @@ def resume_migration(migration_id, db_path):
         echo_info(f"Resuming migration: {migration_id}")
         echo_info(f"Profile: {migration.profile}")
 
-        stats = repo.get_stats(migration_id)
+        stats = repo.get_migration_stats(migration_id)
         echo_info(
             f"Progress: {stats['successful']}/{stats['total']} completed, "
             f"{stats['pending']} pending"
@@ -259,7 +261,7 @@ def migration_status(migration_id, db_path):
         click.echo(f"Completed: {migration.completed_at or 'In progress'}")
         click.echo()
 
-        stats = repo.get_stats(migration_id)
+        stats = repo.get_migration_stats(migration_id)
         click.echo(f"Total files: {stats['total']}")
         click.echo(f"Successful: {stats['successful']}")
         click.echo(f"Failed: {stats['failed']}")
@@ -299,7 +301,7 @@ def rollback_migration(migration_id, db_path, backup_dir):
             echo_error("Rollback not enabled for this migration")
             return
 
-        stats = repo.get_stats(migration_id)
+        stats = repo.get_migration_stats(migration_id)
         echo_warning(
             f"This will restore {stats['successful']} files from backup"
         )
@@ -364,7 +366,7 @@ def list_migrations(db_path, limit):
         click.echo("-" * 100)
 
         for migration in migrations:
-            stats = repo.get_stats(migration.migration_id)
+            stats = repo.get_migration_stats(migration.migration_id)
             click.echo(
                 f"{migration.migration_id:<30} "
                 f"{migration.status.value:<12} "

@@ -1,0 +1,8 @@
+# PDM Custom Properties for front_door.dxf
+properties:
+  PartNumber: "FD-001"
+  Title: "Front Door Assembly"
+  Author: "CAD Migration Tool"
+  Revision: "A0"
+  Date: "2026-01-10"
+  Description: "Entry door with grille and handle cutouts"

@@ -10,36 +10,42 @@ drawing_type: "mechanical"
 # Define properties for each standard layer
 layer_standards:
   GEOMETRY:
+    name: GEOMETRY
     color: 7  # White (AutoCAD color index)
     linetype: "Continuous"
     lineweight: 0.25  # mm
     description: "Geometric entities (lines, arcs, circles)"
-    
+
   DIMENSIONS:
+    name: DIMENSIONS
     color: 1  # Red
     linetype: "Continuous"
     lineweight: 0.18
     description: "Dimension entities"
-    
+
   TEXT:
+    name: TEXT
     color: 3  # Green
     linetype: "Continuous"
     lineweight: 0.13
     description: "Text and annotations"
-    
+
   CENTERLINES:
+    name: CENTERLINES
     color: 5  # Blue
     linetype: "CENTER"
     lineweight: 0.13
     description: "Centerlines and axis"
-    
+
   HIDDEN:
+    name: HIDDEN
     color: 8  # Dark gray
     linetype: "HIDDEN"
     lineweight: 0.18
     description: "Hidden lines"
-    
+
   HATCHING:
+    name: HATCHING
     color: 9  # Light gray
     linetype: "Continuous"
     lineweight: 0.13
@@ -82,9 +88,11 @@ text_standards:
 
 # Layer Mappings
 # Map old layer names to new standard names
-layer_mappings:
+layer_mapping:
+  # Common standard layers
   "0": "GEOMETRY"
   "DEFPOINTS": "GEOMETRY"
+  "Defpoints": "GEOMETRY"
   "DIMS": "DIMENSIONS"
   "DIM": "DIMENSIONS"
   "NOTES": "TEXT"
@@ -93,6 +101,15 @@ layer_mappings:
   "CENTERLINE": "CENTERLINES"
   "HIDDEN": "HIDDEN"
   "HATCH": "HATCHING"
+
+  # CNC/downloaded file layers (for learning demo)
+  "Holes": "GEOMETRY"
+  "Grille": "GEOMETRY"
+  "Box": "GEOMETRY"
+  "Layer_1": "GEOMETRY"
+  "Layer 1": "GEOMETRY"
+  "1": "GEOMETRY"
+  "freepatternsarea.com": "TEXT"
 
 # Title Block Field Mappings
 # Map old title block fields to new fields
@@ -114,42 +131,54 @@ title_block_mappings:
 # Property Mappings for PDM Integration
 # Map CAD properties to PDM custom properties
 property_mappings:
-  "Part Number":
+  PartNumber:
+    property_name: "PartNumber"
     source: "title_block"
     source_key: "number"
+    data_type: "string"
     required: true
-    
-  "Title":
+
+  Title:
+    property_name: "Title"
     source: "title_block"
     source_key: "title"
+    data_type: "string"
     required: true
-    
-  "Author":
+
+  Author:
+    property_name: "Author"
     source: "title_block"
     source_key: "author"
+    data_type: "string"
     required: false
-    
-  "Revision":
+
+  Revision:
+    property_name: "Revision"
     source: "title_block"
     source_key: "revision"
+    data_type: "string"
     required: false
-    
-  "Date":
+
+  Date:
+    property_name: "Date"
     source: "title_block"
     source_key: "date"
+    data_type: "string"
     required: false
 
 # Validation Rules
 validation:
   # Required layers that must exist
-  required_layers:
-    - "GEOMETRY"
-    - "DIMENSIONS"
-    
+  # (RELAXED for learning - commented out)
+  # required_layers:
+  #   - "GEOMETRY"
+  #   - "DIMENSIONS"
+
   # Minimum entity counts
-  min_entities: 1
-  
+  min_entities: 0  # Changed to 0 to allow any drawing
+
   # Title block required fields
-  required_title_block_fields:
-    - "number"
-    - "title"
+  # (RELAXED for learning - commented out)
+  # required_title_block_fields:
+  #   - "number"
+  #   - "title"

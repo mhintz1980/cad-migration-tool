@@ -109,8 +109,8 @@ def run_learning(old_samples, new_samples, output, min_confidence, pattern, name
         click.echo()
         echo_success(f"Learning complete!")
         echo_info(f"Total rules learned: {learning_result.total_rules}")
-        echo_info(f"High confidence rules: {learning_result.high_confidence_count}")
-        echo_info(f"Low confidence rules: {learning_result.low_confidence_count}")
+        echo_info(f"High confidence rules: {learning_result.get_high_confidence_count()}")
+        echo_info(f"Low confidence rules: {learning_result.get_low_confidence_count()}")
 
         if learning_result.layer_rules:
             echo_info(f"Layer mappings: {len(learning_result.layer_rules)}")
@@ -191,14 +191,15 @@ def learning_report(old_samples, new_samples, min_confidence, pattern, detailed)
 
         click.echo("Rule Summary:")
         click.echo(f"  Total rules: {learning_result.total_rules}")
-        click.echo(f"  High confidence (≥{min_confidence}): {learning_result.high_confidence_count}")
-        click.echo(f"  Low confidence (<{min_confidence}): {learning_result.low_confidence_count}")
+        click.echo(f"  High confidence (≥{min_confidence}): {learning_result.get_high_confidence_count(min_confidence)}")
+        click.echo(f"  Low confidence (<{min_confidence}): {learning_result.get_low_confidence_count(min_confidence)}")
         click.echo()
 
         # Layer rules
         if learning_result.layer_rules:
             click.echo(f"Layer Mapping Rules ({len(learning_result.layer_rules)}):")
-            for rule in learning_result.layer_rules[:10 if not detailed else None]:
+            rules_to_show = learning_result.layer_rules if detailed else learning_result.layer_rules[:10]
+            for rule in rules_to_show:
                 confidence_color = "green" if rule.confidence >= min_confidence else "yellow"
                 click.secho(
                     f"  {rule.source_pattern} → {rule.target_value} "
@@ -212,7 +213,8 @@ def learning_report(old_samples, new_samples, min_confidence, pattern, detailed)
         # Dimension rules
         if learning_result.dimension_rules:
             click.echo(f"Dimension Property Rules ({len(learning_result.dimension_rules)}):")
-            for rule in learning_result.dimension_rules[:10 if not detailed else None]:
+            rules_to_show = learning_result.dimension_rules if detailed else learning_result.dimension_rules[:10]
+            for rule in rules_to_show:
                 confidence_color = "green" if rule.confidence >= min_confidence else "yellow"
                 click.secho(
                     f"  {rule.source_pattern} → {rule.target_value} "
@@ -226,7 +228,8 @@ def learning_report(old_samples, new_samples, min_confidence, pattern, detailed)
         # Title block rules
         if learning_result.title_block_rules:
             click.echo(f"Title Block Field Rules ({len(learning_result.title_block_rules)}):")
-            for rule in learning_result.title_block_rules[:10 if not detailed else None]:
+            rules_to_show = learning_result.title_block_rules if detailed else learning_result.title_block_rules[:10]
+            for rule in rules_to_show:
                 confidence_color = "green" if rule.confidence >= min_confidence else "yellow"
                 click.secho(
                     f"  {rule.source_pattern} → {rule.target_value} "

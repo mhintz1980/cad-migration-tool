@@ -47,6 +47,12 @@ class DXFParser(BaseParser):
             # Extract entities by layer
             entities = self._extract_entities(msp)
 
+            # Populate entities in each layer
+            for entity in entities:
+                layer_name = entity.get("layer")
+                if layer_name in layers:
+                    layers[layer_name]["entities"].append(entity)
+
             # Extract blocks
             blocks = self._extract_blocks(doc)
 
@@ -93,6 +99,7 @@ class DXFParser(BaseParser):
                     "plot": layer.dxf.plot,
                     "frozen": (layer.dxf.flags & 1) != 0,
                     "locked": (layer.dxf.flags & 4) != 0,
+                    "entities": [],  # Will be populated later
                 }
         except Exception as e:
             self.logger.warning(f"Error extracting layers: {str(e)}")
@@ -104,14 +111,13 @@ class DXFParser(BaseParser):
         entities = []
         try:
             for entity in msp:
-                entities.append(
-                    {
-                        "type": entity.dxftype(),
-                        "layer": entity.dxf.layer,
-                        "color": entity.dxf.color,
-                        "data": entity,  # Keep raw entity
-                    }
-                )
+                entity_dict = {
+                    "type": entity.dxftype(),
+                    "layer": entity.dxf.layer,
+                    "color": entity.dxf.color,
+                    "data": entity,  # Keep raw entity
+                }
+                entities.append(entity_dict)
         except Exception as e:
             self.logger.warning(f"Error extracting entities: {str(e)}")
 

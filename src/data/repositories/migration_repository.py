@@ -391,6 +391,49 @@ class MigrationRepository(Repository[Migration]):
             else:
                 return {}
 
+    def get_migration_stats(self, migration_id: str) -> Dict[str, Any]:
+        """
+        Get statistics for a specific migration.
+
+        Args:
+            migration_id: Migration identifier
+
+        Returns:
+            Dictionary of statistics for the migration
+        """
+        query = """
+            SELECT
+                total_files,
+                successful_files,
+                failed_files,
+                skipped_files,
+                CAST(successful_files AS REAL) / NULLIF(total_files, 0) * 100 as success_rate
+            FROM migrations
+            WHERE id = ?
+        """
+
+        with self.db.connection() as conn:
+            row = conn.execute(query, (migration_id,)).fetchone()
+
+            if row:
+                stats = {
+                    "total": row["total_files"] or 0,
+                    "successful": row["successful_files"] or 0,
+                    "failed": row["failed_files"] or 0,
+                    "pending": row["skipped_files"] or 0,
+                    "success_rate": row["success_rate"] or 0.0,
+                }
+                logger.debug(f"Retrieved migration stats for {migration_id}: {stats}")
+                return stats
+            else:
+                return {
+                    "total": 0,
+                    "successful": 0,
+                    "failed": 0,
+                    "pending": 0,
+                    "success_rate": 0.0,
+                }
+
     def _row_to_migration(self, row, item_rows: List) -> Migration:
         """Convert database rows to Migration object."""
         # Parse items

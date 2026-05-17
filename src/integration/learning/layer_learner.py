@@ -177,11 +177,14 @@ class LayerLearner(BaseLearner):
                 similarity = len(intersection) / len(union) if union else 0.0
 
             # Penalize large entity count differences
-            count_ratio = min(
-                old_signature["entity_count"], new_signature["entity_count"]
-            ) / max(old_signature["entity_count"], new_signature["entity_count"])
             if old_signature["entity_count"] > 0 and new_signature["entity_count"] > 0:
+                count_ratio = min(
+                    old_signature["entity_count"], new_signature["entity_count"]
+                ) / max(old_signature["entity_count"], new_signature["entity_count"])
                 similarity *= (0.5 + 0.5 * count_ratio)  # Weighted by count similarity
+            else:
+                # One or both layers have no entities - reduce similarity
+                similarity *= 0.5
 
             if similarity > best_similarity:
                 best_similarity = similarity

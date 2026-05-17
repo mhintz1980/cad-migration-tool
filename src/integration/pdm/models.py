@@ -40,6 +40,7 @@ class CheckInResult:
 
     success: bool
     new_version: int
+    previous_version: Optional[int] = None
     error: Optional[str] = None
     vault_path: Optional[str] = None
 
@@ -50,6 +51,7 @@ class CheckOutResult:
 
     success: bool
     local_path: Optional[Path] = None
+    version: Optional[int] = None
     error: Optional[str] = None
 
 
